@@ -1,10 +1,14 @@
 package com.example.game2d;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameView extends SurfaceView implements Runnable {
 
@@ -13,6 +17,7 @@ public class GameView extends SurfaceView implements Runnable {
     private int screenX, screenY;
     public static float screenRatioX, screenRatioY;
     private Paint paint;
+    private List<Bullet>bullets;
     private Walk walk;
     private BackGround backGround1, backGround2;
 
@@ -24,7 +29,8 @@ public class GameView extends SurfaceView implements Runnable {
         screenRatioY = 1080f / screenY;
         backGround1 = new BackGround(screenX, screenY, getResources());
         backGround2 = new BackGround(screenX, screenY, getResources());
-        walk = new Walk(screenY, getResources());
+        walk = new Walk (this, screenY, getResources());
+        bullets=new ArrayList<>();
         backGround2.x = screenX;
         paint = new Paint();
     }
@@ -51,15 +57,22 @@ public class GameView extends SurfaceView implements Runnable {
         }
         if (backGround2.x + backGround2.background.getWidth() < 0) {
             backGround2.x = screenX;
-
             if (walk.isGoingUp)
-                walk.y -= 30*screenRatioY;
-            else
-                walk.y += 30 * screenRatioY;
-            if (walk.y<0)
-                walk.y=0;
+                walk.y -= 30 * screenRatioY;
+            else walk.y += 30 * screenRatioY;
+            if (walk.y < 0)
+                walk.y = 0;
             if (walk.y > screenY - walk.height)
                 walk.y = screenY - walk.height;
+            List<Bullet> trash = new ArrayList<>();
+            for (Bullet bullet : bullets) {
+                if (bullet.x > screenX)
+                    trash.add(bullet);
+
+                bullet.x += 50 * screenRatioX;
+            }
+            for (Bullet bullet : trash)
+                bullets.remove(bullet);
         }
     }
 
@@ -71,6 +84,8 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(backGround2.background, backGround2.x, backGround2.y, paint);
 
             canvas.drawBitmap(walk.getWalk(), walk.x, walk.y, paint);
+            for (Bullet bullet : bullets)
+                canvas.drawBitmap(bullet.bullet, bullet.x, bullet.y, paint);
             getHolder().unlockCanvasAndPost(canvas);
         }
 
@@ -98,26 +113,31 @@ public class GameView extends SurfaceView implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        boolean onTouchEvent ; MotionEvent event = null;
-        {
+        return false;
+    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
 
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    if (event.getX() < screenX / 2) {
-                        walk.isGoingUp = true;
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                   walk.isGoingUp = false;
-                    if (event.getY() > screenX / 2)
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if (event.getX() < screenX/2){
+                    walk.isGoingUp = true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                    walk.isGoingUp=false;
+                    if (event.getX()>screenX/2)
                         walk.toShoot++;
-                    break;
-
-            }
-
-            return true;
+                break;
         }
+        return true;
+    }
 
+    public void newBullet() {
+        Bullet bullet = new Bullet(getResources());
+        bullet.x = walk.x + walk.width;
+        bullet.y = walk.y + (walk.height/2);
+        bullets.add(bullet);
     }
-    }
+}
 
