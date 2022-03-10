@@ -18,10 +18,10 @@
         android:layout_above="@id/play"
         android:layout_below="@id/soSTxt"
         android:layout_centerHorizontal="true"
-        android:text="THIEVES AND POLITE"
-        android:textStyle="bold"
-        android:textColor="@color/purple_200"
-        android:textSize="40sp" />
+        android:text="CHIBI BATTLE"
+        android:textColor="#503788"
+        android:textSize="40sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/play"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="Play"
-        android:textColor="@color/blow"
+        android:textColor="#F50000"
         android:textSize="64sp" />
 
     <TextView
